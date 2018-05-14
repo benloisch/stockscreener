@@ -19,6 +19,8 @@ marketCapMin = 0
 marketCapMax = 1000000000000
 volatilityMin = 0.0
 volatilityMax = 1000.0
+priceMin = 0.0
+priceMax = 10000.0
 industry = -1
 uniqueIndustries = []
 
@@ -90,6 +92,8 @@ def bullishEngulfing():
             return
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
             return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            return
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -110,6 +114,8 @@ def oneWhiteSoldier():
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
             return
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
             return
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
@@ -132,6 +138,8 @@ def bullishHarami():
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
             return
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
             return
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
@@ -255,6 +263,18 @@ def main(arg1='', arg2='', arg3=''):
                 volatilityMax = float(candleStickVolatilityMax)
             else:
                 volatilityMax = 1000
+            candlestickPriceMin = input("Minimum Price (default 0.0): ")
+            if (candlestickPriceMin != ""):
+                global priceMin
+                priceMin = float(candlestickPriceMin)
+            else:
+                priceMin = 0
+            candlestickPriceMax = input("Maximum Price (default 10000.0): ")
+            if (candlestickPriceMax != ""):
+                global priceMax
+                priceMax = float(candlestickPriceMax)
+            else:
+                priceMax = 10000.0
             print("Pick an industry (default any)")
             for i in range(0, len(uniqueIndustries)):
                 print(str(i) + ": " + uniqueIndustries[i])
@@ -276,4 +296,4 @@ def main(arg1='', arg2='', arg3=''):
         print()
 
 if __name__ == '__main__':
-    main("C:\\Users\\mz7bf2\\Desktop\\stocks\\america_2018-05-9.csv", "C:\\Users\\mz7bf2\\Desktop\\stocks\\america_2018-05-10.csv", "C:\\Users\\mz7bf2\\Desktop\\stocks\\america_2018-05-11.csv")
+    main("C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-10.csv", "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-10.csv", "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-13.csv")
