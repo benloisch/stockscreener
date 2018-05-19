@@ -59,7 +59,7 @@ def removeBadStocks():
             t = t - 1
         t += 1
     t = 0
-    while t < (len(stocksDay2) - 1):
+    while t < (len(stocksDay3) - 1):
         if (not (tickerDay3[t] in tickerDay1)):
             stocksDay3.pop(t)
             tickerDay3.pop(t)
@@ -104,6 +104,29 @@ def bullishEngulfing():
                     if (stocksDay3[t].high > stocksDay2[t].high and stocksDay3[t].close > stocksDay2[t].open):
                         print(tickerDay3[t])
 
+def bearishEngulfing():
+    for t in range(0, len(stocksDay1)):
+
+        if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
+            return
+        if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
+            return
+        if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
+            return
+        if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            return
+        if (industry != -1):
+            if (stocksDay1[t].industry != uniqueIndustries[industry]):
+                continue
+
+        if (stocksDay2[t].close > stocksDay2[t].open):
+            if (stocksDay3[t].close < stocksDay3[t].open):
+                if (stocksDay3[t].high > stocksDay2[t].high and stocksDay3[t].open > stocksDay2[t].close):
+                    if (stocksDay3[t].low < stocksDay2[t].low and stocksDay3[t].close < stocksDay2[t].open):
+                        print(tickerDay3[t])
+
 def oneWhiteSoldier():
     for t in range(0, len(stocksDay1)):
 
@@ -128,6 +151,30 @@ def oneWhiteSoldier():
                         if (stocksDay3[t].close > stocksDay2[t].high):
                             print(tickerDay3[t])
 
+def oneBlackCrow():
+    for t in range(0, len(stocksDay1)):
+
+        if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
+            return
+        if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
+            return
+        if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
+            return
+        if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            return
+        if (industry != -1):
+            if (stocksDay1[t].industry != uniqueIndustries[industry]):
+                continue
+
+        if (stocksDay2[t].close > stocksDay2[t].open):
+            if (stocksDay3[t].close < stocksDay3[t].open):
+                if (stocksDay3[t].open < stocksDay2[t].close and stocksDay3[t].open > stocksDay2[t].open):
+                    if (stocksDay3[t].high < stocksDay2[t].close and stocksDay3[t].high > stocksDay2[t].open):
+                        if (stocksDay3[t].close < stocksDay2[t].low):
+                            print(tickerDay3[t])
+
 def bullishHarami():
     for t in range(0, len(stocksDay1)):
 
@@ -148,6 +195,28 @@ def bullishHarami():
         if (stocksDay2[t].close < stocksDay2[t].open):
             if (stocksDay3[t].close > stocksDay3[t].open):
                 if (stocksDay3[t].high < stocksDay2[t].open and stocksDay3[t].low > stocksDay2[t].close):
+                    print(tickerDay3[t])
+
+def bearishHarami():
+    for t in range(0, len(stocksDay1)):
+
+        if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
+            return
+        if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
+            return
+        if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
+            return
+        if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            return
+        if (industry != -1):
+            if (stocksDay1[t].industry != uniqueIndustries[industry]):
+                continue
+
+        if (stocksDay2[t].close > stocksDay2[t].open):
+            if (stocksDay3[t].close < stocksDay3[t].open):
+                if (stocksDay3[t].high < stocksDay2[t].close and stocksDay3[t].low > stocksDay2[t].open):
                     print(tickerDay3[t])
 
 def main(arg1='', arg2='', arg3=''):
@@ -204,8 +273,11 @@ def main(arg1='', arg2='', arg3=''):
         print("1: Candlestick Help")
         print("2: Volume,RSI,MarketCap,Industry")
         print("3: Bullish Engulfing")
+        print("3b: Bearish Engulfing")
         print("4: One White Soldier")
+        print("4b: One Black Crow")
         print("5: Bullish Harami")
+        print("5b: Bearish Harami")
         print("5h: Bullish Harami Help")
 
         candlestickChoice = input()
@@ -286,14 +358,22 @@ def main(arg1='', arg2='', arg3=''):
                 industry = -1
         elif (candlestickChoice == "3"):
             bullishEngulfing()
+        elif (candlestickChoice == "3b"):
+            bearishEngulfing()
         elif (candlestickChoice == "4"):
             oneWhiteSoldier()
+        elif (candlestickChoice == "4b"):
+            oneBlackCrow()
         elif (candlestickChoice == "5"):
             bullishHarami()
+        elif (candlestickChoice == "5b"):
+            bearishHarami()
         elif (candlestickChoice == "5h"):
             print("Buy in on bullish harami when green day is just outside or at edge of boilinger bands")
 
         print()
 
 if __name__ == '__main__':
-    main("C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-10.csv", "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-10.csv", "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-13.csv")
+    main("C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-15.csv",
+         "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-16.csv",
+         "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-17.csv")
