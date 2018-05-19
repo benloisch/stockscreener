@@ -219,6 +219,100 @@ def bearishHarami():
                 if (stocksDay3[t].high < stocksDay2[t].close and stocksDay3[t].low > stocksDay2[t].open):
                     print(tickerDay3[t])
 
+def bullishTweezer():
+    for t in range(0, len(stocksDay1)):
+
+        if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
+            return
+        if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
+            return
+        if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
+            return
+        if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            return
+        if (industry != -1):
+            if (stocksDay1[t].industry != uniqueIndustries[industry]):
+                continue
+
+        if (stocksDay2[t].close < stocksDay2[t].open):
+            if (stocksDay3[t].close > stocksDay3[t].open):
+                if (max(stocksDay2[t].close, stocksDay2[t].low, stocksDay3[t].open, stocksDay3[t].low) - min(
+                        stocksDay2[t].close, stocksDay2[t].low, stocksDay3[t].open, stocksDay3[t].low) < 0.05):
+                    print(tickerDay3[t])
+
+def bearishTweezer():
+    for t in range(0, len(stocksDay1)):
+
+        if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
+            return
+        if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
+            return
+        if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
+            return
+        if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            return
+        if (industry != -1):
+            if (stocksDay1[t].industry != uniqueIndustries[industry]):
+                continue
+
+        if (stocksDay2[t].close > stocksDay2[t].open):
+            if (stocksDay3[t].close < stocksDay3[t].open):
+                if (max(stocksDay2[t].close, stocksDay2[t].high, stocksDay3[t].open, stocksDay3[t].high) - min(
+                        stocksDay2[t].close, stocksDay2[t].high, stocksDay3[t].open, stocksDay3[t].high) < 0.05):
+                    print(tickerDay3[t])
+
+def bullishMorningStar():
+    for t in range(0, len(stocksDay1)):
+
+        if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
+            return
+        if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
+            return
+        if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
+            return
+        if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            return
+        if (industry != -1):
+            if (stocksDay1[t].industry != uniqueIndustries[industry]):
+                continue
+
+        if (stocksDay1[t].close < stocksDay1[t].open):
+            if (stocksDay2[t].close > stocksDay2[t].open):
+                if (stocksDay3[t].close > stocksDay3[t].open):
+                    if (stocksDay2[t].high < stocksDay1[t].low): #if day2 gaps down from day1
+                        if (stocksDay3[t].low > stocksDay2[t].high): #if day3 gaps up from day2
+                            print(tickerDay3[t])
+
+def bearishEveningStar():
+    for t in range(0, len(stocksDay1)):
+
+        if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
+            return
+        if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
+            return
+        if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
+            return
+        if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            return
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            return
+        if (industry != -1):
+            if (stocksDay1[t].industry != uniqueIndustries[industry]):
+                continue
+
+        if (stocksDay1[t].close > stocksDay1[t].open):
+            if (stocksDay2[t].close < stocksDay2[t].open):
+                if (stocksDay3[t].close < stocksDay3[t].open):
+                    if (stocksDay2[t].low > stocksDay1[t].high): #if day2 gaps up from day1
+                        if (stocksDay3[t].high < stocksDay2[t].low): #if day3 gaps down from day2
+                            print(tickerDay3[t])
+
 def main(arg1='', arg2='', arg3=''):
     # check for valid file paths for arguments
     if len(arg1)==0:
@@ -279,6 +373,10 @@ def main(arg1='', arg2='', arg3=''):
         print("5: Bullish Harami")
         print("5b: Bearish Harami")
         print("5h: Bullish Harami Help")
+        print("6: Bullish Tweezer")
+        print("6b: Bearish Tweezer")
+        print("7: Bullish Morning Star")
+        print("7b: Bearish Evening Star")
 
         candlestickChoice = input()
 
@@ -370,8 +468,16 @@ def main(arg1='', arg2='', arg3=''):
             bearishHarami()
         elif (candlestickChoice == "5h"):
             print("Buy in on bullish harami when green day is just outside or at edge of boilinger bands")
+        elif (candlestickChoice == "6"):
+            bullishTweezer()
+        elif (candlestickChoice == "6b"):
+            bearishTweezer()
+        elif (candlestickChoice == "7"):
+            bullishMorningStar()
+        elif (candlestickChoice == "7b"):
+            bearishEveningStar()
 
-        print()
+        input("Press Enter to Continue")
 
 if __name__ == '__main__':
     main("C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-15.csv",
