@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <title>Historical Stock Data</title>
+  </head>
+  <body >
+
+	<input type="file" name="file" id="file">
+  
+	<script>
+	
+		function sleep(milliseconds) {
+		  var start = new Date().getTime();
+		  for (var i = 0; i < 1e7; i++) {
+			if ((new Date().getTime() - start) > milliseconds){
+			  break;
+			}
+		  }
+		}
+	
+		document.getElementById('file').onchange = function(){
+
+		  var file = this.files[0];
+
+		  var reader = new FileReader();
+		  reader.onload = function(progressEvent){
+			
+			// By lines
+			var stringToSplit = this.result;
+
+			var lines = stringToSplit.split('\n');
+			for(line = 0; line < 50; line++){//lines.length; line++){
+			  console.log(lines[line]);
+			  
+			  var url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=" + lines[line] + "&apikey=P9923QVELJ5NTSWH&datatype=csv&outputsize=full";
+			  //var url = "https://www.quandl.com/api/v3/datasets/EOD/" + lines[line] + "/data.csv?api_key=zRcYSJ7xSW4Rt2zUaoWm"
+			  var w = window.open(url, '_blank', 'toolbar=yes, location=yes, status=yes, menubar=yes, scrollbars=yes')
+			  
+			  w.onload = function () { 
+				w.close();
+			 
+			 };  
+			 
+			 //if (line % 5 == 0) {
+				sleep(3000);
+			 //}
+			 
+			}
+
+		  };
+		  reader.readAsText(file);
+		};
+		
+	
+	</script>
+
+  </body>
+</html>
