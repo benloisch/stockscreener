@@ -8,6 +8,7 @@
 using namespace std;
 
 #include "csv.h"
+#include "ImageBMP.h"
 
 class Equity {
 public:
@@ -193,6 +194,22 @@ void loadEquityFolder(string folderPath, string equityType, string specificEquit
 
 int main() {
 
+	//ImageBMP bmp;
+	//bmp.createBMP(4, 16777216, "test");
+	//bmp.setInitialBMPColor(255, 0, 0);
+	//bmp.saveBMP();
+
+	//int** a = new int*[16777216];
+	//for (unsigned long i = 0; i < 16777216; ++i)
+	//	a[i] = new int[4];
+
+	Sleep(1000);
+
+	for (unsigned long i = 0; i < 16777216; ++i) {
+		delete[] a[i];
+	}
+	delete[] a;
+
 	clock_t begin = clock();
 
 	string specificEquity = "tde.us.txt";
@@ -200,7 +217,7 @@ int main() {
 
 	//stock
 	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nasdaq stocks\\1\\", "stock", specificEquity);
-	loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nasdaq stocks\\2\\", "stock", specificEquity);
+	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nasdaq stocks\\2\\", "stock", specificEquity);
 	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nyse stocks\\1\\", "stock", specificEquity);
 	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nyse stocks\\2\\", "stock", specificEquity);
 	
