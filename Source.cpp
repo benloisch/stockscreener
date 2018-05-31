@@ -192,26 +192,21 @@ void loadEquityFolder(string folderPath, string equityType, string specificEquit
 	}
 }
 
-int main() {
+class CandleStickPattern {
+public:
+	char candleStickType[10]; //index in array
+	unsigned int numberOfOccurences;
+	float profitabilityOfGivenDay;
 
-	//ImageBMP bmp;
-	//bmp.createBMP(4, 16777216, "test");
-	//bmp.setInitialBMPColor(255, 0, 0);
-	//bmp.saveBMP();
-
-	//int** a = new int*[16777216];
-	//for (unsigned long i = 0; i < 16777216; ++i)
-	//	a[i] = new int[4];
-
-	Sleep(1000);
-
-	for (unsigned long i = 0; i < 16777216; ++i) {
-		delete[] a[i];
+	CandleStickPattern() {
+		for (int i = 0; i < 10; i++)
+			candleStickType[i] = '0';
+		numberOfOccurences = 0;
+		profitabilityOfGivenDay = 0.0;
 	}
-	delete[] a;
+};
 
-	clock_t begin = clock();
-
+int main() {
 	string specificEquity = "tde.us.txt";
 	specificEquity = "";
 
@@ -220,16 +215,51 @@ int main() {
 	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nasdaq stocks\\2\\", "stock", specificEquity);
 	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nyse stocks\\1\\", "stock", specificEquity);
 	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nyse stocks\\2\\", "stock", specificEquity);
-	
+
 	//index
 	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nasdaq etfs\\", "etf", specificEquity);
 	//loadEquityFolder("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\us\\nyse etfs\\", "etf", specificEquity);
 	
+	unsigned int N = 5;
+
+	vector<vector<vector<vector<vector<vector<vector<vector<vector<vector<vector<CandleStickPattern>>>>>>>>>>> candles;
+
+	candles.resize(N);
+	for (int a = 0; a < N; a++) {
+		candles[a].resize(N);
+		for (int b = 0; b < N; b++) {
+			candles[a][b].resize(N);
+			for (int c = 0; c < N; c++) {
+				candles[a][b][c].resize(N);
+				for (int d = 0; d < N; d++) {
+					candles[a][b][c][d].resize(N);
+					for (int e = 0; e < N; e++) {
+						candles[a][b][c][d][e].resize(N);
+						for (int f = 0; f < N; f++) {
+							candles[a][b][c][d][e][f].resize(N);
+							for (int g = 0; g < N; g++) {
+								candles[a][b][c][d][e][f][g].resize(N);
+								for (int h = 0; h < N; h++) {
+									candles[a][b][c][d][e][f][g][h].resize(N);
+									for (int i = 0; i < N; i++) {
+										candles[a][b][c][d][e][f][g][h][i].resize(N);
+										for (int j = 0; j < N; j++) {
+											candles[a][b][c][d][e][f][g][h][i][j].resize(N);
+										}}}}}}}}}}
+
+	candles[4][2][3][4][3][2][2][2][4][1][1].numberOfOccurences = 100;
+
+	vector<vector<vector<vector<vector<vector<vector<vector<vector<vector<vector<CandleStickPattern>>>>>>>>>>> candles2;
+
+
+	/*
+	clock_t begin = clock();
+	
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-	cout << elapsed_secs << endl;
-	
+	cout << elapsed_secs << endl;*/
+	/*
 	int greenRedCount = 0;
 	float greenRedTotal = 0;
 
@@ -297,7 +327,7 @@ int main() {
 	//	totalDays += stocks[i].volume.size();
 		//cout << stocks[i].ticker + ", days: " + to_string(stocks[i].volume.size()) << endl;
 	//}
-	
+	*/
 	
 	system("PAUSE");
 	return 0;
