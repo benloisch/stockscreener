@@ -994,6 +994,12 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 	return topPatterns;
 }
 
+float simulation(string startDate, string endDate, float initialDeposit, vector<CandleStickPattern> &candlestickMetric, int tradingMethod) {
+	
+	
+	return 0.0;	
+}
+
 int main() {
 
 	//create a slider
@@ -1137,6 +1143,8 @@ int main() {
 		c.measuredProfit = mp;
 		c.numberOfOccurences = occ;
 		c.profitabilityOfGivenDay = ap;
+		
+		calibratedCandlePatterns.push_back(c);
 	}
 	*/
 
