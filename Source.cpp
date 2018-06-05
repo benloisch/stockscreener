@@ -34,6 +34,7 @@ class CandleStickPattern {
 public:
 	vector<string> tickerAndDate;
 	string candleStickType;
+	string candleStickPattern;
 	unsigned int numberOfOccurences;
 	float profitabilityOfGivenDay;
 	float measuredProfit;
@@ -43,6 +44,7 @@ public:
 
 	CandleStickPattern() {
 		candleStickType = "";
+		candleStickPattern = "";
 		numberOfOccurences = 0;
 		profitabilityOfGivenDay = 0.0;
 		measuredProfit = 0.0;
@@ -69,6 +71,57 @@ unsigned int loadXEquities = 0;
 
 //unsigned int N = 5;
 //vector<vector<vector<vector<vector<vector<vector<vector<vector<vector<vector<CandleStickPattern>>>>>>>>>>> candles;
+
+void loadEODLatestData(string folderPath) {
+	cout << "Loading Historical Equity Data from latest EOD..." << endl;
+
+	string directory = folderPath;
+
+	_finddata_t info;
+	intptr_t hFile;
+
+	folderPath = directory + "*.*";
+	const char* fp = folderPath.c_str();
+
+	if ((hFile = _findfirst(fp, &info)) != -1L) {
+
+		_findnext(hFile, &info); //read "." hidden directory file
+
+		while (_findnext(hFile, &info) == 0) {
+
+			string fileName = info.name;
+
+			io::CSVReader<7> in(directory + info.name);
+
+			std::string ticker, date = "";
+			float open, high, low, close;
+			unsigned int volume;
+			while (in.read_row(ticker, date, open, high, low, close, volume)) {
+
+				if (std::find(preTicker.begin(), preTicker.end(), ticker) != preTicker.end())
+				{
+					for (unsigned int e = 0; e < equities.size(); e++) {
+						if (equities[e].ticker == ticker) {
+							date.insert(4, "-");
+							date.insert(7, "-");
+
+							equities[e].date.push_back(date);
+							equities[e].close.push_back(close);
+							equities[e].open.push_back(open);
+							equities[e].low.push_back(low);
+							equities[e].high.push_back(high);
+							equities[e].volume.push_back(volume);
+						}
+					}
+				}
+
+			}
+
+			//break;
+		}
+		_findclose(hFile);
+	}
+}
 
 void loadEquityFolder(string folderPath, string equityType, string specificEquity) {
 	cout << "Loading Historical Equity Data..." << endl;
@@ -112,7 +165,7 @@ void loadEquityFolder(string folderPath, string equityType, string specificEquit
 
 		while (_findnext(hFile, &info) == 0) {
 			//stop++;
-			//if (stop > 100) {
+			//if (stop > 10) {
 			//	_findclose(hFile);
 			//	return;
 			//}
@@ -241,6 +294,20 @@ void loadEquityFolder(string folderPath, string equityType, string specificEquit
 	}
 }
 
+bool isOneWhiteSoldier(float o0, float c0, float o1, float c1) {
+	if (c0 < o0) { //if previous day was bearish
+		if (c1 > o1) { //if current day was bullish
+			if (o1 > c0) { //if open of current day is greater than close of  previous
+				if (c1 > o0) { //if close of first day is greater than open of previous
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 bool isBullishEngulfing(float o0, float c0, float o1, float c1) {
 	if (c0 < o0) { //if previous day was bearish
 		if (c1 > o1) { //if current day was bullish
@@ -256,6 +323,54 @@ bool isBullishEngulfing(float o0, float c0, float o1, float c1) {
 }
 
 bool isBullishHarami(float o0, float c0, float o1, float c1) {
+	if (c0 < o0) { //if previous day was bearish
+		if (c1 > o1) { //if current day was bullish
+			if (o1 > c0) { //if open of current day is greater than close of  previous
+				if (c1 < o0) { //if close of first day is less than open of previous
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool isBullishThreeLineStrike(float o0, float c0, float o1, float c1, float o2, float c2, float o3, float c3) {
+	if (c0 < o0) { //if day1 was bearish
+		if (c1 < o1 && c1 < c0) { //if day2 was bearish
+			if (c2 < o2 && c2 < c1) { //if day3 was bearish
+				if (c3 > o3) { //if day 4 was bullish
+					if (c3 > o0 && o3 < c2) { // if day 4 was bullish engulfing of previous three bearish candles
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool isDojiNeutral(float o, float c, float h, float l) {
+	if (abs(o - c) < h * 0.001) {
+		if (o > (0.33 * (h - l)) + l && o < (0.66 * (h - l)) + l) {
+			if (c > (0.33 * (h - l)) + l && c < (0.66 * (h - l)) + l) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool isBullishAbandonedBaby(float o0, float c0, float o1, float c1) {
+	//if the difference between open and close is less than 0.0001 of stock price then it is a doji 
+	//doji classifications
+	//neutral, gravestone, dragonfly
+
+
+
 	if (c0 < o0) { //if previous day was bearish
 		if (c1 > o1) { //if current day was bullish
 			if (o1 > c0) { //if open of current day is greater than close of  previous
@@ -294,7 +409,7 @@ float SMA(vector<float> arr) {
 }
 
 vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLengthOfCandles, unsigned int givenDay, bool profitUpToGivenDay, unsigned int howManyTopPatterns, string typeOfPattern, unsigned int dividers) {
-	cout << "Analyzing Equities..." << endl;
+	cout << "Analyzing Equities with pattern division: " << to_string(dividers) << endl;
 	
 	//givenDay = 0 = gap up/down percentage
 	//giveDay > 0 = profit / loss percentage of given day
@@ -314,18 +429,23 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 
 		//cout << "Analyzing bullish on: " + equities[i].ticker << endl;// +" on date:" + dateOfBullishEngulfing << endl;
 		//cout << "FoundPattern size: " + to_string(foundPatterns.size()) << endl;
-
+		/*
 		vector<float> SMA;
 		vector<float> rsiUpDay;
 		vector<float> rsiDownDay;
 		vector<float> rsiSMA;
 		vector<float> rsiEMA;
-
+		*/
 		for (int d = historyLengthOfCandles; d < equities[i].volume.size() - 1 - givenDay; d++) {
 			//string dateOfBullishEngulfing = equities[i].date[d];
 			
-			if (d < 13)
+			if (d < historyLengthOfCandles)
 				continue;
+
+			if (equities[i].date[d] == "2018-05-07") {
+				d += 3;
+				continue;
+			}
 
 			/*
 			if (d == 14) {
@@ -355,7 +475,7 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 			}*/
 
 			//rsi SMA
-			
+			/*
 			if (d == 14) {
 
 				for (int s = 1; s < 15; s++) {
@@ -561,6 +681,23 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 					continue;
 				}
 			}
+
+			if (typeOfPattern == "one white soldier") {
+				if (!isOneWhiteSoldier(equities[i].open[d - 1], equities[i].close[d - 1], equities[i].open[d], equities[i].close[d])) {
+					continue;
+				}
+			}
+
+			//if (typeOfPattern == "abandoned baby") {
+
+			//}
+
+			//if (typeOfPattern == "three line strike") {
+			//	if (!isBullishThreeLineStrike(equities[i].open[d - 3], equities[i].close[d - 3], equities[i].open[d - 2], equities[i].close[d - 2], 
+			//		equities[i].open[d - 1], equities[i].close[d - 1], equities[i].open[d], equities[i].close[d])) {
+			//		continue;
+			//	}
+			//}
 			///if (rsiSMA.size() > 0)
 				//if (rsiSMA[rsiSMA.size() - 1] > 70)
 					//continue;
@@ -568,7 +705,7 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 			//if (equities[i].volume[d] < equities[i].volume[d - 1])
 				//continue;
 
-			string dateOfBullishEngulfing = equities[i].date[d];
+			//string dateOfBullishEngulfing = equities[i].date[d];
 			/*
 			float N = 14.0;
 
@@ -612,7 +749,7 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 			float rsi = 100.0 - (100.0 / (1.0 + (emaUpDays / emaDownDays)));
 			*/
 
-			int stop = 0;
+			//int stop = 0;
 
 			CandleStickPattern pattern;
 
@@ -644,11 +781,11 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 				//extractedPattern.append(to_string(remainder) + ",");
 				int remainder = (equities[i].open[d - h] - bottom) / (difference / dividers);
 				remainder = (remainder == dividers) ? (dividers - 1) : (remainder);
-				extractedPattern.append(to_string(remainder) + ",");
+				extractedPattern.append(to_string(remainder) + "|");
 				remainder = (equities[i].close[d - h] - bottom) / (difference / dividers);
 				remainder = (remainder == dividers) ? (dividers - 1) : (remainder);
 				if (h > 0)
-					extractedPattern.append(to_string(remainder) + ",");
+					extractedPattern.append(to_string(remainder) + "|");
 				else
 					extractedPattern.append(to_string(remainder));
 			}
@@ -659,11 +796,11 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 			//check if pattern has already been recorded
 			unsigned int f = 0;
 			for (; f < foundPatterns.size(); f++) {
-				if (foundPatterns[f].candleStickType == extractedPattern) {
-					if (foundPatterns[f].numberOfOccurences < lowestNumberOfOccurences)
-						lowestNumberOfOccurences = foundPatterns[f].numberOfOccurences;
-					if (foundPatterns[f].numberOfOccurences > highestNumberOfOccurences)
-						highestNumberOfOccurences = foundPatterns[f].numberOfOccurences;
+				if (foundPatterns[f].candleStickPattern == extractedPattern) {
+					//if (foundPatterns[f].numberOfOccurences < lowestNumberOfOccurences)
+					//	lowestNumberOfOccurences = foundPatterns[f].numberOfOccurences;
+					//if (foundPatterns[f].numberOfOccurences > highestNumberOfOccurences)
+					//	highestNumberOfOccurences = foundPatterns[f].numberOfOccurences;
 
 					//+1 to pattern number of occurences and add profitability of givenDay
 					float addProfitToDate = (equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay];
@@ -674,8 +811,8 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 					foundPatterns[f].numberOfOccurences++;
 					if (givenDay > 0) {
 						if (profitUpToGivenDay == false) {
-							if (((equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay]) > highestProfitabilityOfGivenDay)
-								highestProfitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay];
+							//if (((equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay]) > highestProfitabilityOfGivenDay)
+								//highestProfitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay];
 
 							foundPatterns[f].profitabilityOfGivenDay += (equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay];
 							if ((equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay] > 0.0) {
@@ -685,19 +822,19 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 								foundPatterns[f].redDay += 1.0;
 							}
 						}
-						else {
-							if (((equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1]) > highestProfitabilityOfGivenDay)
-								highestProfitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1];
+						//else {
+						//	if (((equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1]) > highestProfitabilityOfGivenDay)
+						//		highestProfitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1];
 
-							foundPatterns[f].profitabilityOfGivenDay += (equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1];
-						}
+						//	foundPatterns[f].profitabilityOfGivenDay += (equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1];
+						//}
 					}
-					else {
-						if (((equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d]) > highestProfitabilityOfGivenDay)
-							highestProfitabilityOfGivenDay = (equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d];
+					//else {
+					//	if (((equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d]) > highestProfitabilityOfGivenDay)
+					//		highestProfitabilityOfGivenDay = (equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d];
 								
-						foundPatterns[f].profitabilityOfGivenDay += (equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d]; //calculate profit of gap day
-					}
+					//	foundPatterns[f].profitabilityOfGivenDay += (equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d]; //calculate profit of gap day
+					//}
 					break;
 				}
 
@@ -719,12 +856,12 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 					addProfitToDate = 0.0;
 
 				c.tickerAndDate.push_back(equities[i].ticker + ":" + equities[i].date[d] + ":" + to_string(addProfitToDate));
-				c.candleStickType = extractedPattern;
+				c.candleStickPattern = extractedPattern;
 				c.numberOfOccurences = 1;
 				if (givenDay > 0) {
 					if (profitUpToGivenDay == false) {
-						if (((equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay]) > highestProfitabilityOfGivenDay)
-							highestProfitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay];
+						//if (((equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay]) > highestProfitabilityOfGivenDay)
+							//highestProfitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay];
 
 						c.profitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay];
 						if ((equities[i].close[d + givenDay] - equities[i].open[d + givenDay]) / equities[i].open[d + givenDay] > 0.0) {
@@ -735,18 +872,18 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 						}
 					}
 					else {
-						if (((equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1]) > highestProfitabilityOfGivenDay)
-							highestProfitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1];
+						//if (((equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1]) > highestProfitabilityOfGivenDay)
+							//highestProfitabilityOfGivenDay = (equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1];
 
 						c.profitabilityOfGivenDay += (equities[i].close[d + givenDay] - equities[i].open[d + 1]) / equities[i].open[d + 1];
 					}
 				}
-				else {
-					if (((equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d]) > highestProfitabilityOfGivenDay)
-						highestProfitabilityOfGivenDay = (equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d];
+				//else {
+				//	if (((equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d]) > highestProfitabilityOfGivenDay)
+				//		highestProfitabilityOfGivenDay = (equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d];
 
-					c.profitabilityOfGivenDay = (equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d]; //calculate profit of gap day
-				}
+				//	c.profitabilityOfGivenDay = (equities[i].open[d + 1] - equities[i].close[d]) / equities[i].close[d]; //calculate profit of gap day
+				//}
 				foundPatterns.push_back(c);
 			}
 
@@ -759,13 +896,14 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 	}
 
 	//pick top howManyTopPatterns
-	float differenceNumberOfOccurences = 1 + highestNumberOfOccurences - lowestNumberOfOccurences;
+	//float differenceNumberOfOccurences = 1 + highestNumberOfOccurences - lowestNumberOfOccurences;
 
 	for (unsigned int p = 0; p < foundPatterns.size(); p++) {
-		if (foundPatterns[p].profitabilityOfGivenDay <= 0.0)
+
+		if (foundPatterns[p].profitabilityOfGivenDay <= 0.5)
 			continue;
 
-		
+
 		if (foundPatterns[p].numberOfOccurences == 1) {
 			float profit = (foundPatterns[p].profitabilityOfGivenDay) * (foundPatterns[p].greenDay / foundPatterns[p].redDay);
 			foundPatterns[p].measuredProfit = profit;
@@ -774,7 +912,9 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 
 		if (foundPatterns[p].numberOfOccurences < 30)
 			continue;
-			
+
+		if (foundPatterns[p].greenDay / foundPatterns[p].redDay < 2.0)
+			continue;
 
 		float numberOfOccurences = foundPatterns[p].numberOfOccurences;// -lowestNumberOfOccurences;
 		if (numberOfOccurences == 0)
@@ -785,9 +925,6 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 		//float profit = foundPatterns[p].profitabilityOfGivenDay;
 		float profit = (foundPatterns[p].profitabilityOfGivenDay) * (foundPatterns[p].greenDay / foundPatterns[p].redDay);
 		foundPatterns[p].measuredProfit = profit;
-
-		if (foundPatterns[p].greenDay / foundPatterns[p].redDay < 1.0)
-			continue;
 
 		topPatterns.push_back(foundPatterns[p]);
 
@@ -835,8 +972,23 @@ vector<CandleStickPattern> calculateHighestProfitability(unsigned int historyLen
 
 		//if (topPatterns.size() > 100)
 			//topPatterns.pop_back();
-		
 
+
+	}
+
+	for (unsigned int t = 0; t < topPatterns.size(); t++) {
+
+		if (typeOfPattern == "bullish engulfing") {
+			topPatterns[t].candleStickType = "bullish engulfing";
+		}
+
+		if (typeOfPattern == "bullish harami") {
+			topPatterns[t].candleStickType = "bullish harami";
+		}
+
+		if (typeOfPattern == "one white soldier") {
+			topPatterns[t].candleStickType = "one white soldier";
+		}
 	}
 
 	return topPatterns;
@@ -854,6 +1006,8 @@ int main() {
 	//success percentage that profit reached average predicted range
 	//percentage your trades were positive
 
+	//when testing, don't buy in if volume < 1,000,000
+
 	string specificEquity = "fb.us.txt";
 	specificEquity = "";
 
@@ -870,6 +1024,17 @@ int main() {
 	equities.insert(equities.end(), stocks.begin(), stocks.end());
 	equities.insert(equities.end(), etfs.begin(), etfs.end());
 
+	loadEODLatestData("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\eodNYSE\\");
+	loadEODLatestData("C:\\Users\\benlo\\Documents\\Stock Data\\data\\daily\\eodNASDAQ\\");
+
+	int averageDays = 0;
+	for (int d = 0; d < equities.size(); d++) {
+		averageDays += equities[d].volume.size();
+	}
+
+	averageDays /= equities.size(); //2092
+
+	cout << "average stock lifetime in days: " << averageDays << endl;
 	
 	CandleStickPattern bestPatternWithSettings;
 	/*
@@ -903,21 +1068,98 @@ int main() {
 	cout << "days going back: " + to_string(recordI) + ", divided into: " + to_string(recordJ) << endl;
 	*/
 
-	vector<CandleStickPattern> top100BullishEngulfing = calculateHighestProfitability(2, 1, false, 100, "bullish engulfing", 9);
 	
-	for (int i = 0; i < top100BullishEngulfing.size(); i++) {
-		cout << top100BullishEngulfing[i].candleStickType << endl;
-		cout << "occurences: " + to_string(top100BullishEngulfing[i].numberOfOccurences) + ", average profit: " + 
-			to_string(top100BullishEngulfing[i].profitabilityOfGivenDay) + ", totalProfit: " + 
-			to_string(top100BullishEngulfing[i].measuredProfit)
-			+ ", G/R ratio: " + to_string(top100BullishEngulfing[i].greenDay / top100BullishEngulfing[i].redDay) << endl;
+
+	vector<CandleStickPattern> topBullishEngulfing7 = calculateHighestProfitability(2, 1, false, 100, "bullish engulfing", 7);
+	vector<CandleStickPattern> topBullishEngulfing8 = calculateHighestProfitability(2, 1, false, 100, "bullish engulfing", 8);
+	vector<CandleStickPattern> topBullishEngulfing9 = calculateHighestProfitability(2, 1, false, 100, "bullish engulfing", 9);
+	vector<CandleStickPattern> topBullishEngulfing10 = calculateHighestProfitability(2, 1, false, 100, "bullish engulfing", 10);
+	vector<CandleStickPattern> topBullishEngulfing11 = calculateHighestProfitability(2, 1, false, 100, "bullish engulfing", 11);
+
+	vector<CandleStickPattern> topBullishHarami7 = calculateHighestProfitability(2, 1, false, 100, "bullish harami", 7);
+	vector<CandleStickPattern> topBullishHarami8 = calculateHighestProfitability(2, 1, false, 100, "bullish harami", 8);
+	vector<CandleStickPattern> topBullishHarami9 = calculateHighestProfitability(2, 1, false, 100, "bullish harami", 9);
+	vector<CandleStickPattern> topBullishHarami10 = calculateHighestProfitability(2, 1, false, 100, "bullish harami", 10);
+	vector<CandleStickPattern> topBullishHarami11 = calculateHighestProfitability(2, 1, false, 100, "bullish harami", 11);
+
+	vector<CandleStickPattern> topBullishOneWhiteSoldier7 = calculateHighestProfitability(2, 1, false, 100, "one white soldier", 7);
+	vector<CandleStickPattern> topBullishOneWhiteSoldier8 = calculateHighestProfitability(2, 1, false, 100, "one white soldier", 8);
+	vector<CandleStickPattern> topBullishOneWhiteSoldier9 = calculateHighestProfitability(2, 1, false, 100, "one white soldier", 9);
+	vector<CandleStickPattern> topBullishOneWhiteSoldier10 = calculateHighestProfitability(2, 1, false, 100, "one white soldier", 10);
+	vector<CandleStickPattern> topBullishOneWhiteSoldier11 = calculateHighestProfitability(2, 1, false, 100, "one white soldier", 11);
+
+	vector<CandleStickPattern> finalResults;
+	finalResults.insert(finalResults.end(), topBullishEngulfing7.begin(), topBullishEngulfing7.end());
+	finalResults.insert(finalResults.end(), topBullishEngulfing8.begin(), topBullishEngulfing8.end());
+	finalResults.insert(finalResults.end(), topBullishEngulfing9.begin(), topBullishEngulfing9.end());
+	finalResults.insert(finalResults.end(), topBullishEngulfing10.begin(), topBullishEngulfing10.end());
+	finalResults.insert(finalResults.end(), topBullishEngulfing11.begin(), topBullishEngulfing11.end());
+	finalResults.insert(finalResults.end(), topBullishHarami7.begin(), topBullishHarami7.end());
+	finalResults.insert(finalResults.end(), topBullishHarami8.begin(), topBullishHarami8.end());
+	finalResults.insert(finalResults.end(), topBullishHarami9.begin(), topBullishHarami9.end());
+	finalResults.insert(finalResults.end(), topBullishHarami10.begin(), topBullishHarami10.end());
+	finalResults.insert(finalResults.end(), topBullishHarami11.begin(), topBullishHarami11.end());
+	finalResults.insert(finalResults.end(), topBullishOneWhiteSoldier7.begin(), topBullishOneWhiteSoldier7.end());
+	finalResults.insert(finalResults.end(), topBullishOneWhiteSoldier8.begin(), topBullishOneWhiteSoldier8.end());
+	finalResults.insert(finalResults.end(), topBullishOneWhiteSoldier9.begin(), topBullishOneWhiteSoldier9.end());
+	finalResults.insert(finalResults.end(), topBullishOneWhiteSoldier10.begin(), topBullishOneWhiteSoldier10.end());
+	finalResults.insert(finalResults.end(), topBullishOneWhiteSoldier11.begin(), topBullishOneWhiteSoldier11.end());
+
+	cout << "Sorting results..." << endl;
+	std::sort(finalResults.begin(), finalResults.end());
+
+	ofstream fileResults;
+	fileResults.open("results.txt");
+	fileResults << "MP,G|R,AverageProfit,Occurences,Pattern,Type" << endl;
+	for (unsigned int r = 0; r < finalResults.size(); r++) {
+		fileResults << to_string(finalResults[r].measuredProfit) << "," << to_string(finalResults[r].greenDay / finalResults[r].redDay) << "," <<
+		to_string(finalResults[r].profitabilityOfGivenDay) << "," << to_string(finalResults[r].numberOfOccurences) << "," <<
+		finalResults[r].candleStickPattern << "," << finalResults[r].candleStickType << endl;
 	}
+
+	fileResults.close();
 	
-	if (top100BullishEngulfing.size() > 0) {
-		for (int j = 0; j < top100BullishEngulfing[0].tickerAndDate.size(); j++) {
-			cout << top100BullishEngulfing[0].tickerAndDate[j] << endl;
+
+	/*
+	//TESTING
+	vector<CandleStickPattern> calibratedCandlePatterns;
+
+	io::CSVReader<6> in("results.txt");
+	float mp, gr, ap, occ = 0.0;
+	string pattern, type = "";
+	in.read_header(io::ignore_extra_column, "MP", "G|R", "AverageProfit", "Occurences", "Pattern", "Type");
+	while (in.read_row(mp, gr, ap, occ, pattern, type)) {
+		CandleStickPattern c;
+		c.candleStickPattern = pattern;
+		c.candleStickType = type;
+		c.greenDay = gr;
+		c.redDay = gr;
+		c.measuredProfit = mp;
+		c.numberOfOccurences = occ;
+		c.profitabilityOfGivenDay = ap;
+	}
+	*/
+
+
+	/*
+	for (int i = 0; i < topBullishEngulfing7.size(); i++) {
+		cout << topBullishEngulfing7[i].candleStickType << endl;
+		cout << "occurences: " + to_string(topBullishEngulfing7[i].numberOfOccurences) + ", average profit: " +
+			to_string(topBullishEngulfing7[i].profitabilityOfGivenDay) + ", totalProfit: " +
+			to_string(topBullishEngulfing7[i].measuredProfit)
+			+ ", G/R ratio: " + to_string(topBullishEngulfing7[i].greenDay / topBullishEngulfing7[i].redDay) << endl;
+	}
+	*/
+
+	/*
+	for (int i = 0; i < topBullishEngulfing7.size(); i++) {
+		if (topBullishEngulfing7.size() > 0) {
+			for (int j = 0; j < topBullishEngulfing7[i].tickerAndDate.size(); j++) {
+				cout << topBullishEngulfing7[i].tickerAndDate[j] << endl;
+			}
 		}
 	}
+	*/
 
 	/*
 	clock_t begin = clock();
