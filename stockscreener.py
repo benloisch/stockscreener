@@ -2,6 +2,7 @@ import getopt
 import os
 import sys
 import csv
+import operator
 
 __author__ = 'Ben Loisch'
 
@@ -20,7 +21,7 @@ marketCapMax = 1000000000000
 volatilityMin = 0.0
 volatilityMax = 1000.0
 priceMin = 0.0
-priceMax = 10000.0
+priceMax = 1000000.0
 industry = -1
 uniqueIndustries = []
 
@@ -85,15 +86,15 @@ def bullishEngulfing():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -108,15 +109,15 @@ def bearishEngulfing():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -131,15 +132,15 @@ def oneWhiteSoldier():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -155,15 +156,15 @@ def oneBlackCrow():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -179,15 +180,15 @@ def bullishHarami():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -201,15 +202,15 @@ def bearishHarami():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -223,15 +224,15 @@ def bullishTweezer():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -239,22 +240,22 @@ def bullishTweezer():
         if (stocksDay2[t].close < stocksDay2[t].open):
             if (stocksDay3[t].close > stocksDay3[t].open):
                 if (max(stocksDay2[t].close, stocksDay2[t].low, stocksDay3[t].open, stocksDay3[t].low) - min(
-                        stocksDay2[t].close, stocksDay2[t].low, stocksDay3[t].open, stocksDay3[t].low) < 0.05):
+                        stocksDay2[t].close, stocksDay2[t].low, stocksDay3[t].open, stocksDay3[t].low) <= 0.001 * stocksDay3[t].high):
                     print(tickerDay3[t])
 
 def bearishTweezer():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -262,22 +263,22 @@ def bearishTweezer():
         if (stocksDay2[t].close > stocksDay2[t].open):
             if (stocksDay3[t].close < stocksDay3[t].open):
                 if (max(stocksDay2[t].close, stocksDay2[t].high, stocksDay3[t].open, stocksDay3[t].high) - min(
-                        stocksDay2[t].close, stocksDay2[t].high, stocksDay3[t].open, stocksDay3[t].high) < 0.05):
+                        stocksDay2[t].close, stocksDay2[t].high, stocksDay3[t].open, stocksDay3[t].high) <= 0.001 * stocksDay3[t].high):
                     print(tickerDay3[t])
 
 def bullishMorningStar():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -293,15 +294,15 @@ def bearishEveningStar():
     for t in range(0, len(stocksDay1)):
 
         if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
-            return
+            continue
         if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
-            return
+            continue
         if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
-            return
+            continue
         if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
-            return
+            continue
         if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
-            return
+            continue
         if (industry != -1):
             if (stocksDay1[t].industry != uniqueIndustries[industry]):
                 continue
@@ -312,6 +313,42 @@ def bearishEveningStar():
                     if (stocksDay2[t].low > stocksDay1[t].high): #if day2 gaps up from day1
                         if (stocksDay3[t].high < stocksDay2[t].low): #if day3 gaps down from day2
                             print(tickerDay3[t])
+
+def simpleSearch():
+    for t in range(0, len(stocksDay1)):
+
+        if (stocksDay1[t].volume < volumeMin or stocksDay1[t].volume > volumeMax):
+            continue
+        if (stocksDay1[t].rsi < rsiMin or stocksDay1[t].rsi > rsiMax):
+            continue
+        if (stocksDay1[t].marketcap < marketCapMin or stocksDay1[t].marketcap > marketCapMax):
+            continue
+        if (stocksDay1[t].volatility < volatilityMin or stocksDay1[t].volatility > volatilityMax):
+            continue
+        if (stocksDay1[t].close < priceMin or stocksDay1[t].close > priceMax):
+            continue
+        if (industry != -1):
+            if (stocksDay1[t].industry != uniqueIndustries[industry]):
+                continue
+
+        print(tickerDay3[t])
+
+def printSectorRSI():
+    mydict = {}
+
+    for i in range(0, len(uniqueIndustries)):
+        averageRSI = 0
+        industryCounter = 0
+        for t in range(0, len(stocksDay1)):
+            if (stocksDay3[t].industry == uniqueIndustries[i]):
+                averageRSI = averageRSI + stocksDay3[t].rsi
+                industryCounter = industryCounter + 1
+
+        mydict[uniqueIndustries[i]] = averageRSI / industryCounter
+
+    sorted_x = sorted(mydict.items(), key=operator.itemgetter(1))
+    for key, val in sorted_x:
+        print(key + ", RSI: " + str(val))
 
 def main(arg1='', arg2='', arg3=''):
     # check for valid file paths for arguments
@@ -365,6 +402,7 @@ def main(arg1='', arg2='', arg3=''):
         print("\nSelect")
         print("0: Exit")
         print("1: Candlestick Help")
+        print("s: Simple Search")
         print("2: Volume,RSI,MarketCap,Industry")
         print("3: Bullish Engulfing")
         print("3b: Bearish Engulfing")
@@ -377,6 +415,7 @@ def main(arg1='', arg2='', arg3=''):
         print("6b: Bearish Tweezer")
         print("7: Bullish Morning Star")
         print("7b: Bearish Evening Star")
+        print("8: Print Industry RSI")
 
         candlestickChoice = input()
 
@@ -384,6 +423,8 @@ def main(arg1='', arg2='', arg3=''):
             break
         elif (candlestickChoice == "1"):
             print("Upper wick represents selling pressure, bottom wick represents buying pressure")
+        elif (candlestickChoice == "s"):
+            simpleSearch()
         elif (candlestickChoice == "2"):
             candleStickVolumeMinChoice = input("Minimum Volume (default 0): ")
             if (candleStickVolumeMinChoice != ""):
@@ -439,12 +480,12 @@ def main(arg1='', arg2='', arg3=''):
                 priceMin = float(candlestickPriceMin)
             else:
                 priceMin = 0
-            candlestickPriceMax = input("Maximum Price (default 10000.0): ")
+            candlestickPriceMax = input("Maximum Price (default 1000000.0): ")
             if (candlestickPriceMax != ""):
                 global priceMax
                 priceMax = float(candlestickPriceMax)
             else:
-                priceMax = 10000.0
+                priceMax = 1000000.0
             print("Pick an industry (default any)")
             for i in range(0, len(uniqueIndustries)):
                 print(str(i) + ": " + uniqueIndustries[i])
@@ -476,10 +517,12 @@ def main(arg1='', arg2='', arg3=''):
             bullishMorningStar()
         elif (candlestickChoice == "7b"):
             bearishEveningStar()
+        elif (candlestickChoice == "8"):
+            printSectorRSI()
 
         input("Press Enter to Continue")
 
 if __name__ == '__main__':
-    main("C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-15.csv",
-         "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-16.csv",
-         "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-17.csv")
+    main("C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-23.csv",
+         "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-05-24.csv",
+         "C:\\Users\\benlo\\Desktop\\tradingview\\america_2018-06-06.csv")
