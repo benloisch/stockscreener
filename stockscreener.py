@@ -3,6 +3,7 @@ import os
 import sys
 import csv
 import operator
+import math
 
 __author__ = 'Ben Loisch'
 
@@ -344,7 +345,10 @@ def printSectorRSI():
                 averageRSI = averageRSI + stocksDay3[t].rsi
                 industryCounter = industryCounter + 1
 
-        mydict[uniqueIndustries[i]] = averageRSI / industryCounter
+        averageRSI = averageRSI / industryCounter
+        if (math.isnan(averageRSI)):
+            averageRSI = 0.0
+        mydict[uniqueIndustries[i]] = averageRSI
 
     sorted_x = sorted(mydict.items(), key=operator.itemgetter(1))
     for key, val in sorted_x:
